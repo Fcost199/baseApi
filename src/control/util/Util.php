@@ -7,10 +7,26 @@ use Firebase\JWT\JWT;
 
 class Util
 {
+    static public function validacaoUser($request, $permissao = null)
+    {
+        $jwt = Util::validaJWT($request);
+        /**
+         * JWT possui
+         * ID do usuario
+         */
+        //Validate request
+        if( $jwt->id != 123 )
+            return array( false, "Usuario não possui acesso!" );
+        else
+            Config::$USUARIOREQUEST = ["nome" => "Fernando", "cpf" => "479.315.618-56", "id" => "123"];
+
+        return array(true, Config::$USUARIOREQUEST);
+    }
     static public function validaJWT($request){
         $jwt = $request->getHeader('HTTP_AUTHORIZATION');
         $jwt = str_replace('Bearer ', '', $jwt[0]);
-        $decoded = JWT::decode($jwt, 'SAC3JFD', ['HS256']);
+        $config = new Config;
+        $decoded = JWT::decode($jwt, $config->returnPass(), ['HS256']);
         return $decoded;
     }
     static public function ymdToDmy($string)
@@ -64,23 +80,5 @@ class Util
         // echo "Element 2: " . $element2[1] . "<br>";
         // echo "<br><br>";
         return $element1[1] > $element2[1];
-    }
-    public static function calculaPorte($numeroVidas){
-        if(!ValidarCampo::validarNumber($numeroVidas)){
-            return false;
-        }
-        if($numeroVidas >= Config::$PMEI[0] && $numeroVidas <= Config::$PMEI[1]){
-            return'PME Porte I [2,29]';
-        } else if($numeroVidas >= Config::$PMEII[0] && $numeroVidas <= Config::$PMEII[1]){
-            return'PME Porte II [30,99]';
-        } else if($numeroVidas >= Config::$EMPRESARIALI[0] && $numeroVidas <= Config::$EMPRESARIALI[1]){
-            return'Empresarial Porte I [100,249]';
-        } else if($numeroVidas >= Config::$EMPRESARIALII[0] && $numeroVidas <= Config::$EMPRESARIALII[1]){
-            return'Empresarial Porte II [250,499]';
-        } else if($numeroVidas >= Config::$EMPRESARIALIII[0] && $numeroVidas <= Config::$EMPRESARIALIII[1]){
-            return'Empresarial Porte III [+500]';
-        } else {
-            return 'As vidas não entrem em nenhum porte';
-        }
     }
 }

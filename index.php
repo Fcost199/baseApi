@@ -2,6 +2,7 @@
 
 include './src/autoload.php';
 
+use celebre\src\control\router\BaseRouter;
 use celebre\src\control\scripts\CorretoraS;
 use celebre\src\control\scripts\Login;
 use celebre\src\control\scripts\PermissaoS;
@@ -48,42 +49,13 @@ $app->options('*', function ($request, $response) {
         ->withStatus(200)
         ->withJson("ok");
 });
-/* Exemplo
-    $app->post('/usuario/autenticar/', function ($request, $response) {
-        $body = $request->getParsedBody();
-        //Validate request
-        if (!isset($body['password']) || !isset($body['cpf'])) {
-            return $response->withJson('A requisicao nao esta completa', 400);
-        }
-
-        //Okay
-        // Valida se o o login do usuario 
-
-        if (!$usuario = Login::validarLogin($body['cpf'], $body['password'])) {
-            return $response->withJson('Username or password is incorrect', 400);
-        }
-
-        $permissions = Login::getPermissions($usuario->getId());
-
-        $key = "SAC3JFD";
-        $payload = array(
-            "id" => $usuario->getId(),
-        );
-
-        
-        // * IMPORTANT:
-        // * You must specify supported algorithms for your application. See
-        // * https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40
-        // * for a list of spec-compliant algorithms.
-         
-        //Token segurança.
-        $jwt = JWT::encode($payload, $key);
-        $data = array('id' => $usuario->getId(), 'firstname' => $usuario->getNome(), 'token' => $jwt, 'permissions' => $permissions);
-
-        //JWT sub: id, subject Firstname, secret: PortalRH
-        return $response->withJson($data, 200);
-    });
-*/
+/**
+ * Função cria o JWT do usuario com o id.
+ * Padrão do acesso local é fixo a principio
+ */
+$app->group('/usuario', function () use ($app) {
+    $app->post('/autenticar/', BaseRouter::class . ":createAcess" );
+});
 
 
 
